@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace LightBomb
@@ -6,22 +8,23 @@ namespace LightBomb
     public partial class Bomb : Form
     {
         private readonly double _fadeValue;
-        private readonly bool _disableKeyMsg;
+        private readonly bool _disableClose;
 
-        public Bomb(int fadeInterval, double fadeValue, bool disableKeyMsg)
+        public Bomb(Color lightColor, int fadeInterval, double fadeValue, bool disableClose)
         {
             InitializeComponent();
 
+            this.BackColor = lightColor;
             timerFade.Interval = fadeInterval;
             _fadeValue = fadeValue;
-            _disableKeyMsg = disableKeyMsg;
+            _disableClose = disableClose;
 
             timerFade.Start();
         }
 
-        protected override bool ProcessKeyMessage(ref Message m)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            return _disableKeyMsg ? true : base.ProcessKeyMessage(ref m);
+            e.Cancel = _disableClose;
         }
 
         private void FadeTick(object sender, EventArgs e)
@@ -30,7 +33,8 @@ namespace LightBomb
             if (this.Opacity == 0)
             {
                 timerFade.Stop();
-                Application.Exit();
+                if (_disableClose) Process.GetCurrentProcess().Kill();
+                else Application.Exit();
             }
         }
     }
