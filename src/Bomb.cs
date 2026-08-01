@@ -9,8 +9,9 @@ namespace LightBomb
     {
         private readonly double _fadeValue;
         private readonly bool _disableClose;
+        private readonly bool _autoRelight;
 
-        public Bomb(Color lightColor, int fadeInterval, double fadeValue, bool disableClose)
+        public Bomb(Color lightColor, int fadeInterval, double fadeValue, bool disableClose, bool autoRelight)
         {
             InitializeComponent();
 
@@ -18,6 +19,7 @@ namespace LightBomb
             timerFade.Interval = fadeInterval;
             _fadeValue = fadeValue;
             _disableClose = disableClose;
+            _autoRelight = autoRelight;
 
             timerFade.Start();
         }
@@ -32,9 +34,14 @@ namespace LightBomb
             this.Opacity -= _fadeValue;
             if (this.Opacity == 0)
             {
-                timerFade.Stop();
-                if (_disableClose) Process.GetCurrentProcess().Kill();
-                else Application.Exit();
+                if (_autoRelight) this.Opacity = 1;
+                else
+                {
+                    timerFade.Stop();
+
+                    if (_disableClose) Process.GetCurrentProcess().Kill();
+                    else Application.Exit();
+                }
             }
         }
     }
