@@ -48,9 +48,9 @@ namespace LightBomb
             this.KeyPreview = true;
             this.Name = "Bomb";
             this.ShowInTaskbar = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "LightBomb";
             this.TopMost = true;
-            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
 
         }

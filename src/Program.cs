@@ -19,6 +19,7 @@ namespace LightBomb
             double fadeValue = 0.1;
             bool disableClose = false;
             bool autoRelight = false;
+            int? x = null, y = null, w = null, h = null;
 
             if (args.Any(s => s == "-h" || s == "--help"))
             {
@@ -33,8 +34,9 @@ namespace LightBomb
                         第三个参数为每次淡出的量，0 至 1，双精度浮点。
                         第四个参数为是否禁用关闭，开启表示无法正常关闭，布尔填整数，非零值真，谨慎使用。
                         第五个参数为每次闪烁完毕后是否自动重启，布尔填整数，非零值真，谨慎使用。
+                        第六至九个参数为窗口位置与大小：X, Y, Width, Height，均为整数。
 
-                        默认值分别为 ffffff，20，0.1，0，0。
+                        默认值分别为 ffffff，20，0.1，0，0，全屏。
                         当输入无效或未指定时，则使用默认值。可以用无效值跳过不想写的参数。
 
                         -h | --help
@@ -46,7 +48,7 @@ namespace LightBomb
 
             try
             {
-                if (args[0].Length == 6)
+                if (args.Length > 0 && args[0].Length == 6)
                 {
                     UInt16 r = Convert.ToUInt16(args[0].Substring(0, 2), 16);
                     UInt16 g = Convert.ToUInt16(args[0].Substring(2, 2), 16);
@@ -55,24 +57,32 @@ namespace LightBomb
                     lightColor = Color.FromArgb(0xFF, r, g, b);
                 }
 
-                if (int.TryParse(args[1], out int a1))
+                if (args.Length > 1 && int.TryParse(args[1], out int a1))
                 {
                     fadeInterval = a1;
                 }
 
-                if (double.TryParse(args[2], out double a2))
+                if (args.Length > 2 && double.TryParse(args[2], out double a2))
                 {
                     fadeValue = a2;
                 }
 
-                if (int.TryParse(args[3], out int a3))
+                if (args.Length > 3 && int.TryParse(args[3], out int a3))
                 {
                     disableClose = a3 != 0;
                 }
 
-                if (int.TryParse(args[4], out int a4))
+                if (args.Length > 4 && int.TryParse(args[4], out int a4))
                 {
                     autoRelight = a4 != 0;
+                }
+
+                if (args.Length > 8)
+                {
+                    if (int.TryParse(args[5], out int ax)) x = ax;
+                    if (int.TryParse(args[6], out int ay)) y = ay;
+                    if (int.TryParse(args[7], out int aw)) w = aw;
+                    if (int.TryParse(args[8], out int ah)) h = ah;
                 }
             }
             catch (Exception)
@@ -80,7 +90,11 @@ namespace LightBomb
                 ;
             }
 
-            Application.Run(new Bomb(lightColor, fadeInterval, fadeValue, disableClose, autoRelight));
+            Rectangle? customBounds = (x.HasValue && y.HasValue && w.HasValue && h.HasValue)
+                ? new Rectangle(x.Value, y.Value, w.Value, h.Value)
+                : (Rectangle?)null;
+
+            Application.Run(new Bomb(lightColor, fadeInterval, fadeValue, disableClose, autoRelight, customBounds));
         }
     }
 }
